@@ -11,3 +11,7 @@ Correr desde la raíz del repo: `nix develop --command bash -c "cd exploration/4
 | `compare3.py` | k-QUpCCGSD con rotaciones de Givens. |
 | `prune.py` | Poda greedy de 2-QUpCCGSD (tolerancia 0,1 mHa en 6 distancias). Resultado: `pruned.json`. |
 | `core.py`, `ansatz.py`, `givens.py`, `fast.py` | Utilidades: PySCF, generadores, circuitos y simulación en el sector N=4, S_z=0. |
+| `hea.py` | Hardware-efficient (RY·RZ + CZ en línea) optimizando fidelidad con FCI, con gradiente adjunto. |
+| `hea_energy.py` | Lo mismo optimizando energía en el espacio completo (256 amplitudes). |
+| `fullspace.py` | Hamiltoniano en el espacio de Fock completo, solo para explorar ansätze que no conservan N. |
+| `adapt.py` | QEB-ADAPT-VQE con un pool de 90 excitaciones de qubit. Resultado: `adapt.json`. |
