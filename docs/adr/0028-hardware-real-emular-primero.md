@@ -22,7 +22,8 @@ El extra #22 corre un punto estirado en un procesador real de IBM. El ansatz com
 
 ## Consecuencias
 
-- Corrida real: job `dc0uo5qnj2vs73del9s0`, 51 s de QPU. E = −1,48834 ± 0,0058 Ha (+386 mHa vs. FCI), 52 mHa por debajo de Hartree-Fock (~9 σ) y 44 mHa peor que la emulación (~7 σ): el modelo de `from_backend` no ve *crosstalk*, deriva ni errores coherentes.
+- Corrida real reproducible: job `dc0urtmq4uuc73a3895g`, ~51 s de QPU. Emulación de los mismos circuitos: E = −1,53129 ± 0,0058 Ha (+343 mHa vs. FCI). Hardware: E = −1,48503 ± 0,0059 Ha (+390 mHa), 49 mHa por debajo de Hartree-Fock (~8 σ) y 46 mHa peor que su emulación (~5,6 σ combinadas): el modelo de `from_backend` no ve *crosstalk*, deriva ni errores coherentes.
+- Una primera corrida (job `dc0uo5qnj2vs73del9s0`) no guardó los grupos medidos y el análisis los recalculaba: el mismo conteo dio −1,4883 o −1,4957 Ha según el proceso. Se corrigió: PySCF a un hilo, emular y mandar los mismos circuitos ISA en un solo proceso, y guardar los grupos (etiquetas y coeficientes) con el *job*; `fetch` usa esos grupos.
 - Mejorar requiere menos qubits (#14) y mitigación (#13).
 
 ## Referencias
