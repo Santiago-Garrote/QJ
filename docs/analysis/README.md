@@ -3,6 +3,7 @@
 Análisis previo al notebook: qué tan difícil es cada parte del desafío, con números reales de H₄ lineal en STO-3G, y qué dice la literatura sobre cómo atacarlo.
 
 - [`plan.html`](plan.html): versión visual e interactiva de este análisis (gráficos, calculadora de shots, checklist de entregables). Abrir en el navegador.
+- [`state-of-the-art.md`](state-of-the-art.md): estado del arte con corridas propias (en inglés): QEB-ADAPT vs. UCCSD con conteos de CNOT, costo de medición por esquema (incluido basis-rotation grouping), la trampa de `EstimatorV2` en qiskit-aer, ruido en FakeFez, mitigación, SQD/tapering, chequeos de confiabilidad y un análisis de brechas contra este plan.
 - [`data/`](data/): snapshot de los resultados de los scripts.
 - Scripts que los generan: [`scripts/h4_reference.py`](../../scripts/h4_reference.py) y [`scripts/h4_measurement.py`](../../scripts/h4_measurement.py). Escriben en `results/` (ignorado por git); `data/` es una copia comiteada.
 
