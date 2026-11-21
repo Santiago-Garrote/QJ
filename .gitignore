@@ -4,4 +4,5 @@ __pycache__/
 results/*
 !results/.gitkeep
 .direnv/
+.claude/
 notebooks/results/
