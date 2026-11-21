@@ -25,6 +25,8 @@ Enunciado del desafío de la QuantumJam (Qiskit Fall Fest 2026, Computer Society
 | 06 | [Evaluación](challenge/06-evaluacion.md) | Qué mira el jurado |
 | 07 | [Recursos](challenge/07-recursos.md) | Papers, librerías y tutoriales |
 
+¿Términos nuevos? Ver el [glosario](glosario.md), con todo explicado simple.
+
 ## Fuente
 
 `source/challenge.html` (y `source/challenge_files/`) es el snapshot original de la página. Los archivos de `challenge/` se generaron a partir de ese snapshot, con las fórmulas en LaTeX (`$…$`).
