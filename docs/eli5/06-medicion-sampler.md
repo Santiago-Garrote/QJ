@@ -21,7 +21,7 @@ Está en la celda 4.2 del notebook (de `4.2.0` a `4.2.8`).
 
 **Calcular σ.** Con la varianza de ese valor por shot se obtiene el error estándar. Importante: se usa la varianza del grupo entero, así ya incluye las covarianzas entre sus términos.
 
-**Repartir shots en dos etapas.** Primero un piloto de 500 shots por grupo, para estimar cada varianza. Después se reparte el resto en proporción a la raíz de la varianza del grupo (los grupos "ruidosos" reciben más). La meta es σ de unos 3 mHa (1,8 mHa a 1,8 Å, donde el margen contra CCSD es el más chico).
+**Repartir shots en dos etapas.** Primero un piloto de 500 shots por grupo, para estimar cada varianza. Después se reparte el resto en proporción a la raíz de la varianza del grupo (los grupos "ruidosos" reciben más). La meta es σ de unos 3 mHa antes de 1,8 Å, y **0,8 mHa en toda la zona estirada (d ≥ 1,8 Å)** para apuntar a precisión química: con el ansatz exacto el error que queda es estadístico, y 2σ < 1,6 mHa. Eso cuesta ~3,5 millones de shots por punto estirado (~28 millones en toda la curva); se corre en Colab.
 
 Funciones y datos principales:
 

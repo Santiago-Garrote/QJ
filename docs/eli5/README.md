@@ -61,7 +61,7 @@ Qué hace cada caja:
 
 Mientras los compañeros no habían subido #1, #2, #4 y #5, la sección de #6 necesitaba esas piezas. Para no esperar, cada función se pide primero a la versión real. Solo si esa lanza `NotImplementedError`, se usa un reemplazo provisorio llamado `_standin_*`. Es como un mock que se desactiva solo.
 
-Ahora que el notebook integrado ya tiene las piezas reales, **los stand-ins de #1, #2, #4 y #5 no se disparan**. La celda 4.2 imprime "Stand-ins usados en esta corrida: ninguno". El único stand-in que sigue activo es el del modelo de ruido `ruido.py` (#3), que todavía no está en `main`. Verán la línea `[stand-in] ruido.py (#3) no está`.
+Ahora que el notebook integrado ya tiene las piezas reales, **los stand-ins de #1, #2, #4 y #5 no se disparan**. La celda 4.2 imprime "Stand-ins usados en esta corrida: ninguno". Tampoco el de `ruido.py` (#3): el notebook lo escribe con una celda `%%writefile ruido.py` y #11 usa el modelo oficial. Hoy no se dispara ningún stand-in.
 
 ## Cómo correr el notebook en local
 

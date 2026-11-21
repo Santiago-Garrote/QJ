@@ -8,7 +8,7 @@ Un extra: repetir la medición de [#6](06-medicion-sampler.md) en un simulador *
 
 ## Qué construimos
 
-- **Modelo de ruido.** Error despolarizante de 1e-3 en cada `cz` y 5e-5 en cada compuerta de un qubit (`sx`, `x`, `rz`), conectividad en línea. Es el modelo común del enunciado (`ruido.py`).
+- **Modelo de ruido.** Error despolarizante de 1e-3 en cada `cz` y 5e-5 en cada compuerta de un qubit (`sx`, `x`, `rz`), conectividad en línea. Es el modelo común del enunciado: `ruido.py` (#3), que el notebook escribe con una celda `%%writefile ruido.py` antes de usarlo.
 - **Medición.** Se reutiliza `measure_energy` de #6 sin copiarla. Solo se cambia el simulador a matriz densidad con el modelo de ruido, dentro de un context manager (`con_ruido()`). Las rotaciones de base de la medición también reciben error.
 - **Tres versiones del ansatz** en 0,9 / 1,8 / 2,4 / 3,0 Å: el completo, una corta de 12 operadores y una de 2.
 - **Tabla `RUIDO`** y 3 figuras con energía sin ruido, con ruido, error contra FCI y contra CCSD.
@@ -30,14 +30,14 @@ Estos números son con el ansatz provisorio y escala 0,05. Con el ansatz real (1
 
 ## Qué sigue siendo stand-in
 
-- **`ruido.py` (#3)** todavía no está en `main`. Se usa `_standin_noise_model()` con exactamente la especificación del enunciado. Se apaga solo si existe `notebooks/ruido.py` o `ruido.py` con alguna de las funciones `get_noise_model`, `build_noise_model`, `noise_model`, `make_noise_model` o la variable `NOISE_MODEL`. Es la única pieza faltante en la corrida integrada.
+- **Nada.** `ruido.py` (#3) ya está: el notebook lo escribe con `%%writefile` y usa su `noise_model()`. El stand-in `_standin_noise_model()` solo se activa si faltara el archivo. A la compuerta `u` (rotación de base de medición), que `ruido.py` no cubre, se le agrega el error de 5 compuertas de un qubit (ver [ADR 0010](../adr/0010-modelo-de-ruido-standin.md)).
 - #1, #2, #4 y #5 son los reales.
 
 ## Cómo probarlo
 
 1. Correr con `QJ_SHOTS_SCALE=0.05`.
 2. Ver la tabla de la celda 11.4: la columna con ruido debe ser peor que la columna sin ruido en las 4 distancias.
-3. Buscar la línea `[stand-in] ruido.py (#3)` para confirmar qué modelo se usó.
+3. La celda imprime `Modelo de ruido: ruido.py oficial` (si dijera `stand-in`, faltó la celda `%%writefile`).
 
 ## Cuidados (gotchas)
 
