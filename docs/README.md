@@ -35,6 +35,8 @@ Enunciado del desafío de la QuantumJam (Qiskit Fall Fest 2026, Computer Society
 
 [`adr/`](adr/README.md): registro de decisiones técnicas del equipo (qué se decidió, por qué y qué se descartó), con plantilla para sumar nuevas. Insumo de la sección 7 del notebook (#9).
 
+[`eli5/`](eli5/README.md): explicación simple para ingenieros que no son físicos: qué hace el notebook, cómo encajan las piezas y qué hizo cada issue (#6, #7, #11, #12, #19).
+
 ## Fuente
 
 `source/challenge.html` (y `source/challenge_files/`) es el snapshot original de la página. Los archivos de `challenge/` se generaron a partir de ese snapshot, con las fórmulas en LaTeX (`$…$`).
