@@ -24,8 +24,10 @@ El extra #22 corre un punto estirado en un procesador real de IBM. El ansatz com
 
 - Corrida real reproducible: job `dc0urtmq4uuc73a3895g`, ~51 s de QPU. Emulación de los mismos circuitos: E = −1,53129 ± 0,0058 Ha (+343 mHa vs. FCI). Hardware: E = −1,48503 ± 0,0059 Ha (+390 mHa), 49 mHa por debajo de Hartree-Fock (~8 σ) y 46 mHa peor que su emulación (~5,6 σ combinadas): el modelo de `from_backend` no ve *crosstalk*, deriva ni errores coherentes.
 - Una primera corrida (job `dc0uo5qnj2vs73del9s0`) no guardó los grupos medidos y el análisis los recalculaba: el mismo conteo dio −1,4883 o −1,4957 Ha según el proceso. Se corrigió: PySCF a un hilo, emular y mandar los mismos circuitos ISA en un solo proceso, y guardar los grupos (etiquetas y coeficientes) con el *job*; `fetch` usa esos grupos.
-- Mejorar requiere menos qubits (#14) y mitigación (#13).
+- **Repeticiones:** 4 corridas con los mismos circuitos dan +382,2 ± 2,9 mHa de promedio; la dispersión (5,4 mHa) es la del ruido de shots (χ² = 2,5 con 3 gl), sin deriva medible. Más shots bajan σ pero no el sesgo del ruido.
+- **Mitigación (emulada primero):** corrección de readout tensorial (~1 % de error por qubit) + ZNE con `cz` plegadas x3 y extrapolación lineal. En hardware: +382 → +347 (readout) → +330 ± 5 mHa (readout + ZNE), ~54 % del aporte del ruido; la emulación predijo +302. Lo que queda es ruido que la extrapolación lineal con dos puntos no captura. Scripts: `scripts/ibm_hardware_repeat.py`, `scripts/ibm_mitigation.py`.
+- El techo es el ansatz corto (+286 mHa sin ruido): mejorar requiere menos qubits (#14) y equipos con menos error por `cz`.
 
 ## Referencias
 
-Issue #22; `scripts/ibm_hardware.py`; `docs/analysis/data/ibm_hardware_marrakesh_2.4A.json`, `ibm_scan_marrakesh_2.4A.json`.
+Issues #22, #13; `scripts/ibm_hardware.py`; `docs/analysis/data/ibm_hardware_marrakesh_2.4A.json`, `ibm_scan_marrakesh_2.4A.json`.
