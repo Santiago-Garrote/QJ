@@ -1,0 +1,11 @@
+# Single source of truth for dependencies.
+# flake.nix builds the dev shell from this file and checks that the pins match nixpkgs;
+# `nix flake check` checks that the notebook's %pip line matches it.
+# Colab-preinstalled packages are left unpinned to avoid breaking the Colab runtime.
+qiskit==2.5.2
+qiskit-aer==0.17.2
+pyscf==2.14.0
+numpy
+scipy
+pandas
+matplotlib
