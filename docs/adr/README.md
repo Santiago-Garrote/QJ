@@ -40,6 +40,7 @@ Registro de las decisiones técnicas del equipo: qué se decidió, por qué y qu
 | [0025](0025-error-de-la-rotacion-de-base.md) | Error de la rotación de base de medición | Aceptado | #19 |
 | [0026](0026-cz-y-profundidad-mejor-de-tres-semillas.md) | cz y profundidad medidos sin rotaciones, mejor de 3 semillas del transpilador | Aceptado | #12 |
 | [0027](0027-esquemas-de-medicion-avanzados.md) | Comparación de esquemas de medición (#19): validación sin convención y DF | Aceptado | #19 |
+| [0028](0028-confiabilidad-sin-fci.md) | Confiabilidad sin FCI: proyección al singlete, Temple con gap por VQD y CCSD contra la cota inferior | Aceptado | #8 |
 
 ## Plantilla
 
