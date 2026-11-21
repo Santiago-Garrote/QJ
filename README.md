@@ -4,7 +4,9 @@ VQE energy curve of a linear H4 chain (STO-3G). Challenge statement: [`docs/`](d
 
 ```
 docs/                    challenge statement
+docs/analysis/           reference numbers, literature review, strategy (plan.html)
 notebooks/h4_vqe.ipynb   the deliverable (self-contained, runs in Colab)
+scripts/                 classical reference data (PySCF) and measurement-cost analysis
 results/                 generated outputs (git-ignored)
 requirements.txt
 ```
