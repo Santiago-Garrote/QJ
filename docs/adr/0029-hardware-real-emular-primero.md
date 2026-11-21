@@ -1,4 +1,4 @@
-# 0028. Hardware real de IBM: emular primero con la calibración actual y elegir un ansatz corto
+# 0029. Hardware real de IBM: emular primero con la calibración actual y elegir un ansatz corto
 
 ## Estado
 
