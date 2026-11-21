@@ -18,7 +18,7 @@ Hay que pasar el Hamiltoniano electrónico de $\mathrm{H_4}$ (operadores fermió
 Implementar Jordan-Wigner a mano en el notebook:
 
 - `_jw_ladder(n)`: los operadores $a_j = Z_0 \cdots Z_{j-1}\,(X_j + iY_j)/2$ y sus adjuntos, como `SparsePauliOp`, cacheados.
-- `jordan_wigner(h1_so, h2_so)`: genérica. Recibe matrices en espín-orbitales (un cuerpo y dos cuerpos en notación química $(PQ|RS)$) y arma $\sum h_{PQ} a_P^\dagger a_Q + \tfrac12 \sum (PQ|RS)\, a_P^\dagger a_R^\dagger a_S a_Q$. Saltea coeficientes < 1e-12 y los productos que dan cero ($P = R$ o $Q = S$), simplifica y verifica que los coeficientes sean reales.
+- `jordan_wigner(h1_so, h2_so)`: genérica. Recibe matrices en espín-orbitales (un cuerpo y dos cuerpos en notación química $(PQ|RS)$) y arma $\sum h_{PQ} a_P^\dagger a_Q + \tfrac12 \sum (PQ|RS)\, a_P^\dagger a_R^\dagger a_S a_Q$. Saltea coeficientes < 1e-12 y los productos que dan cero ($P = R$ o $Q = S$) y simplifica. Por defecto (`hermitian=True`) exige coeficientes reales y lanza `ValueError` si no lo son, porque en un operador que debería ser hermítico eso delata un error de índices. Con `hermitian=False` devuelve los coeficientes complejos: hace falta para operadores no hermíticos como $S^+ = \sum_p a^\dagger_{p\alpha} a_{p\beta}$, con el que #8 arma $S^2 = S^+S^- + S_z^2 - S_z$ (review de #21; verificado: $\langle S^2\rangle = 0$ en HF y en el fundamental, y 2 en el primer excitado a 3,0 Å).
 - `spatial_to_spin_orbitals(h1, eri)`: pasa de 4 orbitales espaciales a 8 espín-orbitales conservando el espín, con el índice de qubit de la celda 0.1 (`alpha_qubit`, `beta_qubit`).
 - Los productos se arman con `@` (`A @ B` = $A \cdot B$).
 
