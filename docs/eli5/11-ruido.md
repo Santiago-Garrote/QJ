@@ -4,7 +4,7 @@ Volver al [índice ELI5](README.md). Glosario: [`docs/glosario.md`](../glosario.
 
 ## Qué pedía el issue
 
-Un extra: repetir la medición de [#6](06-medicion-sampler.md) en un simulador **con ruido** y comparar con y sin ruido contra FCI, en al menos 4 distancias. Además, explicar cuánto error aporta el ruido y por qué se relaciona con la cantidad de `cz`. Está en la sección 8.1.
+Un extra: repetir la medición de [#6](06-medicion-sampler.md) en un simulador **con ruido** y comparar con y sin ruido contra FCI, en al menos 4 distancias. Además, explicar cuánto error aporta el ruido y por qué se relaciona con la cantidad de `cz`. Está en la sección "Extras" del notebook, subsección de #11.
 
 ## Qué construimos
 
@@ -36,7 +36,7 @@ Estos números son con el ansatz provisorio y escala 0,05. Con el ansatz real (1
 ## Cómo probarlo
 
 1. Correr con `QJ_SHOTS_SCALE=0.05`.
-2. Ver la tabla de la celda 8.1.4: la columna con ruido debe ser peor que la columna sin ruido en las 4 distancias.
+2. Ver la tabla de la celda 11.4: la columna con ruido debe ser peor que la columna sin ruido en las 4 distancias.
 3. Buscar la línea `[stand-in] ruido.py (#3)` para confirmar qué modelo se usó.
 
 ## Cuidados (gotchas)

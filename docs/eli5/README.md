@@ -65,7 +65,7 @@ Ahora que el notebook integrado ya tiene las piezas reales, **los stand-ins de #
 
 ## Cómo correr el notebook en local
 
-1. Instalar las dependencias de `requirements.txt` (qiskit, qiskit-aer, pyscf, qiskit-ibm-runtime, numpy, scipy, pandas, matplotlib). La primera celda de código hace `%pip install` con versiones fijas.
+1. Instalar las dependencias de `requirements.txt` (qiskit, qiskit-aer, pyscf, numpy, scipy, pandas, matplotlib). La primera celda de código hace `%pip install` con versiones fijas. El extra de FakeFez (#12) instala además `qiskit-ibm-runtime` en su propia celda.
 2. Abrir `notebooks/h4_vqe.ipynb` en Jupyter o Colab y ejecutar todo de arriba abajo.
 3. Para una corrida rápida, poner la variable de entorno `QJ_SHOTS_SCALE` antes de arrancar Jupyter. Escala la cantidad de shots:
 

@@ -4,7 +4,7 @@ Volver al [índice ELI5](README.md). Glosario: [`docs/glosario.md`](../glosario.
 
 ## Qué pedía el issue
 
-Comparar al menos dos esquemas de medición en distancias estiradas (QWC contra otros), con los shots necesarios para una σ objetivo. Las energías tienen que salir de `SamplerV2` con shots reales. Está en la sección 8.3.
+Comparar al menos dos esquemas de medición en distancias estiradas (QWC contra otros), con los shots necesarios para una σ objetivo. Las energías tienen que salir de `SamplerV2` con shots reales. Está en la sección "Extras" del notebook, subsección de #19.
 
 ## Qué construimos
 
@@ -47,13 +47,13 @@ Nada propio. Usa las piezas reales de #1, #2, #4 y #5 a través de la tubería d
 ## Cómo probarlo
 
 1. Correr con `QJ_SHOTS_SCALE=0.05`.
-2. Las celdas 8.3.2 y 8.3.3 validan los fragmentos con asserts.
-3. La celda 8.3.4 compara la energía medida con la de #6 con un umbral de 3 σ combinadas. Los valores de `z` dependen de la escala y la semilla.
-4. La figura 8.3.5 muestra los shots por esquema.
+2. Las celdas 19.2 y 19.3 validan los fragmentos con asserts.
+3. La celda 19.4 compara la energía medida con la de #6 con un umbral de 3 σ combinadas. Los valores de `z` dependen de la escala y la semilla.
+4. La figura 19.5 muestra los shots por esquema.
 
 ## Cuidados (gotchas)
 
 - **`EstimatorV2` no muestrea.** Solo `SamplerV2` sirve para reportar.
 - **Signo de los orbitales.** DF necesita que el signo de los orbitales coincida con el Hamiltoniano de #2. Si ningún patrón de signos lo reproduce, `_ms_integrals` imprime un `AVISO` y devuelve `None`. DF se saltea en esa distancia (no se rompe la celda) y la figura deja una barra con NaN.
-- Los z de la tabla 8.3.4 fluctúan entre corridas. Las mayores diferencias vienen del punto de #6.
+- Los z de la tabla 19.4 fluctúan entre corridas. Las mayores diferencias vienen del punto de #6.
 - Los shots "exactos" para σ = 1 mHa se calculan con varianzas exactas, no con muestreo.
