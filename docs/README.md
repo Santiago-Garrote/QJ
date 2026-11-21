@@ -27,6 +27,14 @@ Enunciado del desafío de la QuantumJam (Qiskit Fall Fest 2026, Computer Society
 
 ¿Términos nuevos? Ver el [glosario](glosario.md), con todo explicado simple.
 
+## Análisis
+
+[`analysis/`](analysis/README.md): números de referencia reales (RHF, CCSD, CCSD(T), FCI), costo de medición, hallazgos, revisión de literatura y estrategia propuesta. Versión interactiva en [`analysis/plan.html`](analysis/plan.html); estado del arte y brechas del plan en [`analysis/state-of-the-art.md`](analysis/state-of-the-art.md).
+
+## Decisiones (ADR)
+
+[`adr/`](adr/README.md): registro de decisiones técnicas del equipo (qué se decidió, por qué y qué se descartó), con plantilla para sumar nuevas. Insumo de la sección 7 del notebook (#9).
+
 ## Fuente
 
 `source/challenge.html` (y `source/challenge_files/`) es el snapshot original de la página. Los archivos de `challenge/` se generaron a partir de ese snapshot, con las fórmulas en LaTeX (`$…$`).
