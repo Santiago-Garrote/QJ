@@ -18,16 +18,16 @@ import numpy as np
 from pyscf import scf
 from qiskit.quantum_info import SparsePauliOp
 
-from h4_reference import A, AD, NQ, ROOT, h4_molecule, one_norm, qubit_hamiltonian, qwc_groups, sector_indices
+from h4_reference import A, AD, N_ORB, NQ, ROOT, so, h4_molecule, one_norm, qubit_hamiltonian, qwc_groups, sector_indices
 
 DISTANCES = [0.6, 0.9, 1.2, 1.5, 1.8, 2.1, 2.4, 2.7, 3.0]
-HF_STATE = 0b00001111  # lowest two spatial orbitals doubly occupied (interleaved ordering)
+HF_STATE = 0b00110011  # HF_BITSTRING of the notebook contract: q0, q1 (alpha) and q4, q5 (beta)
 
 
 def s_squared():
     num = lambda j: AD[j] @ A[j]
-    sz = SparsePauliOp.sum([0.5 * (num(2 * p) - num(2 * p + 1)) for p in range(NQ // 2)])
-    sp = SparsePauliOp.sum([AD[2 * p] @ A[2 * p + 1] for p in range(NQ // 2)])
+    sz = SparsePauliOp.sum([0.5 * (num(so(p, 0)) - num(so(p, 1))) for p in range(N_ORB)])
+    sp = SparsePauliOp.sum([AD[so(p, 0)] @ A[so(p, 1)] for p in range(N_ORB)])
     return (sp @ sp.adjoint() + sz @ sz - sz).simplify()
 
 

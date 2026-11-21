@@ -12,7 +12,7 @@ python scripts/h4_reference.py     # RHF, CCSD, CCSD(T), FCI + Hamiltoniano JW d
 python scripts/h4_measurement.py   # costo de medición, <S²>, peso de Hartree-Fock
 ```
 
-Los números se calcularon con PySCF 2.15.1 y Qiskit 2.4.1 (`requirements.txt` fija PySCF 2.14.0 y Qiskit 2.5.2; los resultados no deberían cambiar). El Hamiltoniano de Jordan-Wigner reproduce la energía FCI en cada distancia (el script lo verifica con un `assert`).
+Los scripts usan la grilla de 19 distancias y la convención de qubits del contrato del notebook (α en q0–q3, β en q4–q7, `HF_BITSTRING = "00110011"`). Los números se calcularon con PySCF 2.15.1 y Qiskit 2.4.1 (`requirements.txt` fija PySCF 2.14.0 y Qiskit 2.5.2; los resultados no deberían cambiar). El Hamiltoniano de Jordan-Wigner reproduce la energía FCI en cada distancia (el script lo verifica con un `assert`).
 
 ## Números de referencia
 
@@ -29,7 +29,7 @@ Los números se calcularon con PySCF 2.15.1 y Qiskit 2.4.1 (`requirements.txt` f
 | 2,8 | −1,868350 | −27,67 | −32,52 | 0,98 |
 | 3,0 | −1,867291 | −23,01 | −27,70 | 0,46 |
 
-Tabla completa (16 distancias, con RHF y λ) en [`data/h4_reference.json`](data/h4_reference.json).
+Tabla completa (19 distancias, la grilla del notebook, con RHF y λ) en [`data/h4_reference.json`](data/h4_reference.json).
 
 ## Hallazgos
 
@@ -42,17 +42,17 @@ Tabla completa (16 distancias, con RHF y λ) en [`data/h4_reference.json`](data/
 
 ## Costo de medición
 
-El Hamiltoniano tiene 185 términos de Pauli; un agrupamiento greedy en conjuntos que conmutan qubit a qubit (QWC) los reduce a ~70 grupos. Con reparto óptimo de shots (N<sub>g</sub> ∝ √Var<sub>g</sub>), σ = K/√N, con K calculado sobre el estado exacto:
+El Hamiltoniano tiene 185 términos de Pauli; un agrupamiento greedy en conjuntos que conmutan qubit a qubit (QWC) los reduce a 38–48 grupos. Con reparto óptimo de shots (N<sub>g</sub> ∝ √Var<sub>g</sub>), σ = K/√N, con K calculado sobre el estado exacto:
 
 | d (Å) | K grupos QWC (Ha) | K término a término (Ha) | λ = Σ\|c<sub>k</sub>\| (Ha) | shots σ = 1 mHa (QWC) | shots σ = 1 mHa (rotación de base) |
 |---:|---:|---:|---:|---:|---:|
-| 0,6 | 1,96 | 4,28 | 10,25 | 3,9 M | |
-| 1,2 | 2,18 | 4,39 | 6,39 | 4,7 M | |
-| 1,8 | 1,94 | 4,54 | 5,21 | 3,8 M | 3,4 × 10⁵ |
-| 2,4 | 1,78 | 4,22 | 4,70 | 3,2 M | 5,4 × 10⁴ |
-| 3,0 | 1,63 | 3,89 | 4,37 | 2,7 M | 6,3 × 10³ |
+| 0,6 | 1,80 | 4,28 | 10,25 | 3,2 M | |
+| 1,2 | 1,80 | 4,39 | 6,39 | 3,2 M | |
+| 1,8 | 1,49 | 4,54 | 5,21 | 2,2 M | 3,4 × 10⁵ |
+| 2,4 | 1,33 | 4,22 | 4,70 | 1,8 M | 5,4 × 10⁴ |
+| 3,0 | 1,42 | 3,89 | 4,37 | 2,0 M | 6,3 × 10³ |
 
-Agrupar y repartir bien ahorra ~7× frente a la cota ingenua con λ a 1,8 Å. La rotación de base (factorización doble, Huggins et al. 2021; valores de [state-of-the-art.md](state-of-the-art.md), sección 4) ahorra otro ~10× a 1,8 Å y mucho más al estirar, porque un término cercano a N̂² tiene varianza nula con N fijo. Para ganarle a CCSD a 1,8 Å con σ ≈ 3 mHa alcanzan ~0,4 M shots con grupos QWC.
+Agrupar y repartir bien ahorra ~12× frente a la cota ingenua con λ a 1,8 Å. El agrupamiento greedy depende del orden de los términos: con la convención de qubits del notebook encuentra 38–48 grupos, mientras que con espines intercalados encontraba ~70 (K = 1,94 a 1,8 Å, el valor que usa `state-of-the-art.md`). La rotación de base (factorización doble, Huggins et al. 2021; valores de [state-of-the-art.md](state-of-the-art.md), sección 4) ahorra otro ~6× a 1,8 Å y mucho más al estirar, porque un término cercano a N̂² tiene varianza nula con N fijo. Para ganarle a CCSD a 1,8 Å con σ ≈ 3 mHa alcanzan ~0,25 M shots con grupos QWC.
 
 ## Recomendaciones
 
@@ -79,14 +79,14 @@ Agrupar y repartir bien ahorra ~7× frente a la cota ingenua con λ a 1,8 Å. La
 | Tang et al., [arXiv:1911.10205](https://arxiv.org/abs/1911.10205) (2021) | qubit-ADAPT: pool de Pauli, circuitos ~10× menos profundos | Alternativa; puede romper S² |
 | Lee et al., [arXiv:1810.02327](https://arxiv.org/abs/1810.02327) (2019) | k-UpCCGSD, benchmark en H₄/STO-3G | Ansatz fijo de respaldo |
 | Arrazola et al., Quantum 6, 742 (2022) | Rotaciones de Givens universales para unitarias que conservan N | Fundamenta que se puede alcanzar FCI |
-| Verteletskyi et al., [arXiv:1907.03358](https://arxiv.org/abs/1907.03358) (2020) | Agrupamiento QWC como cobertura de cliques (~3× menos grupos) | 185 términos → ~70 grupos |
+| Verteletskyi et al., [arXiv:1907.03358](https://arxiv.org/abs/1907.03358) (2020) | Agrupamiento QWC como cobertura de cliques (~3× menos grupos) | 185 términos → 38–48 grupos |
 | Bravyi et al., [arXiv:1701.08213](https://arxiv.org/abs/1701.08213) (2017) | Tapering de qubits por simetrías Z₂ | Extra "≤ 6 qubits" |
 | Temme et al., PRL 119, 180509 (2017) | Origen de ZNE y cancelación probabilística | Recurso oficial del desafío |
 | Kandala et al., Nature 567, 491 (2019) | ZNE en hardware sobre problemas variacionales | Muestra que ZNE funciona en VQE |
 | Giurgica-Tiron et al., [arXiv:2005.10921](https://arxiv.org/abs/2005.10921) (2020) | ZNE digital por plegado de compuertas | Receta para el extra de mitigación |
 | Bonet-Monroig et al., PRA 98, 062339 (2018) | Mitigación por verificación de simetrías | Filtrar N y S<sub>z</sub>, casi gratis |
 | Robledo-Moreno et al., [arXiv:2405.05068](https://arxiv.org/abs/2405.05068) (2025) | SQD | Por qué SQD está excluido (36 configuraciones) |
-| Huggins et al., [arXiv:1907.13117](https://arxiv.org/abs/1907.13117) (2021) | Medición por rotación de base (factorización doble) | ~10× menos shots a 1,8 Å y post-selección en cada shot |
+| Huggins et al., [arXiv:1907.13117](https://arxiv.org/abs/1907.13117) (2021) | Medición por rotación de base (factorización doble) | ~6× menos shots que QWC a 1,8 Å y post-selección en cada shot |
 | Ramôa et al., [arXiv:2407.08696](https://arxiv.org/abs/2407.08696) (2025) | CEO-ADAPT: tres dobles al costo de una | Frontera publicada en CNOT |
 | Anselmetti et al., [arXiv:2104.05695](https://arxiv.org/abs/2104.05695) (2021) | Ansatz local que conserva N<sub>α</sub>, N<sub>β</sub> y S² | Evita la contaminación de triplete |
 

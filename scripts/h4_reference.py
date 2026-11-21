@@ -17,8 +17,17 @@ import numpy as np
 from pyscf import ao2mo, cc, fci, gto, scf
 from qiskit.quantum_info import SparsePauliOp
 
-NQ = 8  # spin orbitals, interleaved: qubit 2p = alpha, 2p+1 = beta
-DISTANCES = [0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0]
+# Qubit convention = the notebook's shared contract (notebooks/h4_vqe.ipynb, section 0.1):
+# qubit p = spin-orbital (p, alpha), qubit 4 + p = (p, beta); |1> = occupied; HF = "00110011".
+NQ = 8
+N_ORB = 4
+# Same grid as the notebook contract: 0.6-1.7 every 0.1 A, then 1.8-3.0 every 0.2 A (19 points).
+DISTANCES = [round(x, 2) for x in list(np.arange(0.6, 1.75, 0.1)) + list(np.arange(1.8, 3.01, 0.2))]
+
+
+def so(p, s):
+    """Qubit index of spatial orbital p with spin s (0 = alpha, 1 = beta)."""
+    return p + N_ORB * s
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -51,14 +60,14 @@ def qubit_hamiltonian(mol, mf):
     for p, q in itertools.product(range(n), repeat=2):
         if abs(h1[p, q]) > 1e-12:
             for s in (0, 1):
-                acc.append(h1[p, q] * (AD[2 * p + s] @ A[2 * q + s]))
+                acc.append(h1[p, q] * (AD[so(p, s)] @ A[so(q, s)]))
     # 1/2 sum (pq|rs) a+_{p s} a+_{r t} a_{s t} a_{q s}
     for p, q, r, s_ in itertools.product(range(n), repeat=4):
         v = eri[p, q, r, s_]
         if abs(v) < 1e-12:
             continue
         for si, ti in itertools.product((0, 1), repeat=2):
-            P, Q, R, S = 2 * p + si, 2 * q + si, 2 * r + ti, 2 * s_ + ti
+            P, Q, R, S = so(p, si), so(q, si), so(r, ti), so(s_, ti)
             if P != R and Q != S:
                 acc.append(0.5 * v * (AD[P] @ AD[R] @ A[S] @ A[Q]))
     return SparsePauliOp.sum(acc).simplify(atol=1e-10)
@@ -84,9 +93,9 @@ def qwc_groups(H):
 
 
 def sector_indices():
-    """Basis states with N=4 and Sz=0 (2 alpha on even qubits, 2 beta on odd qubits)."""
+    """Basis states with N=4 and Sz=0 (2 alpha on qubits 0-3, 2 beta on qubits 4-7)."""
     return [b for b in range(2 ** NQ)
-            if bin(b).count("1") == 4 and sum((b >> k) & 1 for k in range(0, NQ, 2)) == 2]
+            if bin(b).count("1") == 4 and sum((b >> k) & 1 for k in range(N_ORB)) == 2]
 
 
 def one_norm(H):
