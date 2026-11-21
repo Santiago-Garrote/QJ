@@ -10,11 +10,13 @@
 - Los orbitales moleculares de PySCF están definidos a menos de un signo: entre una distancia y la siguiente, un orbital puede salir multiplicado por −1. El espectro del Hamiltoniano no cambia, pero los coeficientes de los términos de Pauli sí.
 - #5 optimiza el VQE con *warm start*: usa los parámetros óptimos de una distancia como punto de partida de la siguiente. Si un orbital cambia de signo, los parámetros óptimos también cambian de signo de golpe y el warm start arranca lejos del mínimo.
 - `qubit_hamiltonian(d)` se usa en las secciones 3 a 6 y en los extras, muchas veces con la misma `d`.
+- RHF es **inestable hacia UHF desde ~1,1 Å** (`docs/analysis/state-of-the-art.md`, sección 1; verificado con `mf.stability(external=True)` sobre `h4_scf` a 1,8 y 3,0 Å: estable internamente, inestable externamente).
 
 ## Decisión
 
 1. **Fijar el signo:** después de RHF, cada orbital (columna de `mo_coeff`) se multiplica por el signo de su primer coeficiente no nulo (|c| > 1e-8), así ese coeficiente queda positivo. En $\mathrm{H_4}$ lineal STO-3G es el coeficiente del 1s del primer átomo, que es distinto de cero en los 4 orbitales.
-2. **Caché:** `h4_scf(d)` (RHF con `conv_tol = 1e-11`, falla si no converge) y `qubit_hamiltonian(d)` usan `functools.lru_cache`.
+2. **Orbitales RHF en toda la grilla**, también donde RHF es inestable hacia UHF. Los orbitales solo definen la base: el Hamiltoniano de 8 qubits representa exactamente el mismo problema (FCI no cambia) y el estado de referencia sigue siendo un singlete. Con orbitales UHF, α y β tendrían orbitales distintos, el determinante de referencia estaría contaminado de espín y ⟨S²⟩ = 0 dejaría de servir como diagnóstico en #8. Coincide con la recomendación de `state-of-the-art.md`.
+3. **Caché:** `h4_scf(d)` (RHF con `conv_tol = 1e-11`, falla si no converge) y `qubit_hamiltonian(d)` usan `functools.lru_cache`.
 
 ## Alternativas consideradas
 
