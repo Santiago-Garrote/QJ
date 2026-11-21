@@ -260,7 +260,7 @@ footer{border-top:1px solid var(--line);padding-block:24px 40px;font-size:13px;c
     <label><input type="checkbox" id="r1"><span class="t">Curva E(d) con ±σ en cada punto<small>≥10 distancias, contra CCSD y FCI</small></span></label>
     <label><input type="checkbox" id="r2"><span class="t">R<sub>e</sub> y D<sub>e</sub> = E(3,0 Å) − E(R<sub>e</sub>)<small>Con su incertidumbre</small></span></label>
     <label><input type="checkbox" id="r3"><span class="t">Ganarle a CCSD en d ≥ 1,8 Å<small>|E<sub>VQE</sub> − E<sub>FCI</sub>| + σ &lt; |E<sub>CCSD</sub> − E<sub>FCI</sub>|</small></span></label>
-    <label><input type="checkbox" id="r4"><span class="t">Energías medidas con EstimatorV2 / SamplerV2<small>De qiskit_aer; no leer el statevector</small></span></label>
+    <label><input type="checkbox" id="r4"><span class="t">Energías medidas con SamplerV2 y shots reales<small>EstimatorV2 de Aer no muestrea: da el valor exacto + ruido gaussiano de ancho elegido (0 por defecto)</small></span></label>
     <label><input type="checkbox" id="r5"><span class="t">Argumento de confiabilidad en la zona estirada<small>Antes de comparar con FCI</small></span></label>
     <label><input type="checkbox" id="r6"><span class="t">Tabla por punto<small>Energía, error, shots y compuertas cz</small></span></label>
     <label><input type="checkbox" id="r7"><span class="t">Qué decidieron, por qué y qué no funcionó</span></label>
@@ -301,13 +301,14 @@ footer{border-top:1px solid var(--line);padding-block:24px 40px;font-size:13px;c
 <section id="hallazgos">
   <div class="head">
     <div class="label">03 · Hallazgos</div>
-    <h2>Cinco cosas que cambian la estrategia</h2>
+    <h2>Seis cosas que cambian la estrategia</h2>
   </div>
   <div class="find">
     <article><h3>CCSD cae por debajo de FCI, y mucho</h3><p>Desde ~1,1 Å CCSD da energías <em>menores</em> que la exacta (no es variacional). El error es <b class="num">9,1 mHa</b> a 1,8 Å, toca <b class="num">30,6 mHa</b> a 2,6 Å y queda en <b class="num">23,0 mHa</b> a 3,0 Å. CCSD(T) es todavía peor (<b class="num">35,1 mHa</b> a 2,6 Å). Coincide con lo que reportan Bertels et al. para H₄ estirado.</p></article>
     <article><h3>El punto más difícil para el criterio es 1,8 Å, no 3,0 Å</h3><p>Ahí CCSD tiene su error más chico de la zona juzgada, así que el margen es el más estrecho: hay que lograr |sesgo| + σ &lt; 9,1 mHa. De 2,2 Å en adelante el margen es de más de 20 mHa.</p></article>
-    <article><h3>A 2,7–3,0 Å hay un triplete casi degenerado</h3><p>El primer excitado del sector S<sub>z</sub> = 0 es un triplete (⟨S²⟩ = 2) que queda a <b class="num">1,4 mHa</b> a 2,7 Å y a <b class="num">0,46 mHa</b> a 3,0 Å, por debajo de la precisión química. Consecuencias: un estado con el espín equivocado igual "da" precisión química, la varianza ⟨H²⟩−⟨H⟩² deja de servir como prueba de autoestado, y el optimizador avanza muy lento. Hay que medir ⟨S²⟩ y reportarlo.</p></article>
+    <article><h3>El triplete contamina desde 2,4 Å</h3><p>El primer excitado del sector S<sub>z</sub> = 0 es un triplete (⟨S²⟩ = 2) a <b class="num">4,1 mHa</b> a 2,4 Å, <b class="num">1,4 mHa</b> a 2,7 Å y <b class="num">0,46 mHa</b> a 3,0 Å. En corridas de QEB-ADAPT a 2,4 Å, 15 operadores dan 1,72 mHa de error con ⟨S²⟩ = 0,28 y √Var(H) = 22 mHa: energía casi convergida, estado contaminado. Hay que reportar ⟨S²⟩ y la varianza de la energía en cada punto juzgado.</p></article>
     <article><h3>Hartree-Fock deja de ser una buena referencia</h3><p>El peso del determinante de Hartree-Fock en el estado exacto cae de <b class="num">0,985</b> (0,6 Å) a <b class="num">0,58</b> (1,8 Å) y <b class="num">0,27</b> (3,0 Å). El ansatz tiene que ser multiconfiguracional y conviene no arrancar de θ = 0 en la zona estirada: arranque en caliente desde el punto vecino.</p></article>
+    <article><h3>EstimatorV2 de Aer no mide nada</h3><p>En qiskit-aer, <code>EstimatorV2</code> calcula el valor de expectación exacto y, solo si <code>precision &gt; 0</code>, le suma ruido gaussiano de ese ancho; por defecto es 0. Con eso no hay shots y σ es lo que uno elija. Las energías juzgadas tienen que salir de <code>SamplerV2</code> con shots explícitos por base, calculando E y σ desde los bitstrings; Estimator queda solo como control cruzado.</p></article>
     <article><h3>D<sub>e</sub> es donde CCSD pierde más</h3><p>Con FCI, R<sub>e</sub> ≈ 0,90 Å (ajuste grueso) y D<sub>e</sub> ≈ <b class="num">313 mHa</b>. CCSD da ≈ <b class="num">290 mHa</b>: 23 mHa menos, porque acierta el mínimo pero falla en 3,0 Å. Un VQE bien hecho le gana a CCSD por amplio margen en la métrica de disociación.</p></article>
   </div>
 </section>
@@ -350,6 +351,15 @@ footer{border-top:1px solid var(--line);padding-block:24px 40px;font-size:13px;c
     </div>
 
     <div class="theme">
+      <div class="label">Lo más reciente</div>
+      <div class="papers">
+        <article class="paper key"><span class="cite">Huggins et al. · npj Quantum Inf. (2021)</span><h3>Efficient and noise resilient measurements for quantum chemistry</h3><p>Factoriza el tensor de dos electrones; cada término queda diagonal en números de ocupación tras una rotación de orbitales, así que se mide con L + 1 bases.</p><p class="take">Con H₄: ~3,4 × 10⁵ shots para σ = 1 mHa a 1,8 Å contra 3,5 × 10⁶ con grupos QWC, y cada shot permite filtrar N y S<sub>z</sub>.</p><a href="https://arxiv.org/abs/1907.13117" target="_blank" rel="noopener">arXiv:1907.13117</a></article>
+        <article class="paper"><span class="cite">Ramôa et al. · npj Quantum Inf. (2025)</span><h3>CEO-ADAPT-VQE</h3><p>Operadores de intercambio acoplado que implementan hasta tres dobles de qubit al costo de una. Reportan recortes de hasta 88 % en CNOT frente a ADAPT temprano en moléculas de 12–14 qubits.</p><p class="take">La opción "estado del arte" más defendible si sobra tiempo; en 8 qubits la ganancia sobre QEB-ADAPT es menor.</p><a href="https://arxiv.org/abs/2407.08696" target="_blank" rel="noopener">arXiv:2407.08696</a></article>
+        <article class="paper"><span class="cite">Anselmetti et al. · New J. Phys. (2021)</span><h3>Quantum-number-preserving ansätze</h3><p>Compuertas locales de 4 qubits (rotaciones orbitales e intercambios de pares) que conservan N<sub>α</sub>, N<sub>β</sub> y S² exactamente.</p><p class="take">Segunda opción fuerte: sin SWAPs en una línea y sin contaminación de triplete por construcción.</p><a href="https://arxiv.org/abs/2104.05695" target="_blank" rel="noopener">arXiv:2104.05695</a></article>
+      </div>
+    </div>
+
+    <div class="theme">
       <div class="label">Ruido y mitigación</div>
       <div class="papers">
         <article class="paper"><span class="cite">Temme, Bravyi, Gambetta · PRL 119, 180509 (2017)</span><h3>Error mitigation for short-depth quantum circuits</h3><p>Propone la extrapolación a ruido cero (ZNE) y la cancelación probabilística de errores para circuitos cortos, sin qubits extra.</p><p class="take">Recurso oficial del desafío: si hacen ZNE, citen esto como origen.</p><a href="https://arxiv.org/abs/1612.02058" target="_blank" rel="noopener">arXiv:1612.02058</a></article>
@@ -379,14 +389,14 @@ footer{border-top:1px solid var(--line);padding-block:24px 40px;font-size:13px;c
     <div><span class="k">Jordan-Wigner</span><h3>Mapeo a 8 qubits</h3><p>Espines intercalados (α, β por orbital) para la conectividad lineal.</p></div>
     <div><span class="k">QEB-ADAPT / Givens</span><h3>Ansatz que conserva N</h3><p>Pocos parámetros, pocas cz, sin romper simetrías.</p></div>
     <div><span class="k">statevector</span><h3>Optimizar sin ruido</h3><p>Permitido. Los θ de cada d arrancan el punto siguiente.</p></div>
-    <div><span class="k">EstimatorV2</span><h3>Medir con θ fijos</h3><p>Grupos QWC y shots repartidos por peso.</p></div>
+    <div><span class="k">SamplerV2</span><h3>Medir con θ fijos</h3><p>Shots explícitos por base (grupos QWC o rotación de base), E y σ desde los bitstrings.</p></div>
     <div><span class="k">análisis</span><h3>σ, ⟨S²⟩, R<sub>e</sub>, D<sub>e</sub></h3><p>Tabla de shots y cz, comparación contra CCSD.</p></div>
   </div>
   <div class="dec">
-    <article><span class="label">Ansatz</span><div class="pick">QEB-ADAPT, con k-UpCCGSD como comparador</div><p>Conserva N, gasta pocas cz por operador y deja una curva de error contra cz. k-UpCCGSD ya fue probado en H₄/STO-3G y sirve de respaldo.</p></article>
-    <article><span class="label">Barra de error</span><div class="pick">Analítica y verificada</div><p>σ² = Σ Var<sub>g</sub>/N<sub>g</sub> por grupo, contrastada con corridas independientes o bootstrap.</p></article>
-    <article><span class="label">Reparto de shots</span><div class="pick">N<sub>g</sub> ∝ √Var<sub>g</sub></div><p>Minimiza σ con un total fijo. Gastar más a 1,8–2,0 Å, donde el margen contra CCSD es menor.</p></article>
-    <article><span class="label">Confiabilidad</span><div class="pick">Espín, número y convergencia</div><p>⟨N⟩ = 4, ⟨S<sub>z</sub>⟩ = 0 y sobre todo ⟨S²⟩ ≈ 0 (por el triplete). Energía estable al agrandar el ansatz, y curva suave recorrida desde ambos lados.</p></article>
+    <article><span class="label">Ansatz</span><div class="pick">QEB-ADAPT con reuso de operadores</div><p>Llega a FCI a 1,8, 2,4 y 3,0 Å con 17–20 operadores (~160–205 CNOT con conectividad total). UCCSD de un paso se traba en 3,3 mHa a 1,8 Å. CEO-ADAPT (2025) es la frontera publicada en CNOT; la fábrica QNP conserva S² por construcción.</p></article>
+    <article><span class="label">Medición</span><div class="pick">SamplerV2, después rotación de base</div><p>Empezar con grupos QWC y N<sub>g</sub> ∝ √Var<sub>g</sub>. Si hay tiempo, pasar a basis-rotation grouping (Huggins 2021): ~10× menos shots a 1,8 Å y cada shot permite filtrar N y S<sub>z</sub>.</p></article>
+    <article><span class="label">Barra de error</span><div class="pick">Por shot, y validada</div><p>Valor por shot de cada fragmento entero (incluye covarianzas); σ² = Σ Var<sub>g</sub>/N<sub>g</sub>. Repetir 20–50 veces con semillas distintas y mostrar que la dispersión coincide.</p></article>
+    <article><span class="label">Confiabilidad</span><div class="pick">Varianza, Temple y ⟨S²⟩</div><p>Var(H) → 0 solo en un autoestado; la cota de Temple da una cota inferior (a 1,8 Å con 18 operadores fija la energía a 0,09 mHa). Sumar ⟨S²⟩ ≈ 0 en cada punto y barridos en ambos sentidos que coincidan.</p></article>
     <article><span class="label">R<sub>e</sub> y D<sub>e</sub></span><div class="pick">Puntos densos entre 0,8 y 1,0 Å</div><p>El mínimo está cerca de 0,90 Å. Ajuste local con 5–7 puntos y bootstrap para la incertidumbre.</p></article>
     <article><span class="label">Conteo de cz</span><div class="pick">Transpilar como en ruido.py</div><p>Base cz, sx, x, rz con acoplamiento lineal, para que la tabla sirva también para la parte con ruido.</p></article>
   </div>
@@ -396,7 +406,7 @@ footer{border-top:1px solid var(--line);padding-block:24px 40px;font-size:13px;c
   <div class="head">
     <div class="label">06 · Presupuesto</div>
     <h2>Cuántos shots hacen falta</h2>
-    <p>Con grupos que conmutan qubit a qubit y reparto óptimo, σ = K/√N. K sale de las varianzas reales de cada grupo en el estado exacto de cada distancia, así que no es una cota: es lo que cuesta medir un estado muy cercano al FCI.</p>
+    <p>Con reparto óptimo, σ = K/√N. K sale de las varianzas reales de cada grupo en el estado exacto de cada distancia, así que no es una cota: es lo que cuesta medir un estado muy cercano al FCI. La rotación de base (factorización doble) solo está calculada a 1,8, 2,4 y 3,0 Å.</p>
   </div>
   <div class="calc">
     <div class="fields">
@@ -409,6 +419,7 @@ footer{border-top:1px solid var(--line);padding-block:24px 40px;font-size:13px;c
     <div class="res">
       <div class="big"><b id="o1">–</b><span>shots por punto (grupos QWC, reparto óptimo)</span></div>
       <div class="smalls">
+        <div class="small"><b id="o4">–</b><span>con rotación de base</span></div>
         <div class="small"><b id="o2">–</b><span>midiendo término por término</span></div>
         <div class="small"><b id="o3">–</b><span>cota ingenua con λ</span></div>
       </div>
@@ -426,7 +437,8 @@ footer{border-top:1px solid var(--line);padding-block:24px 40px;font-size:13px;c
     <div>
       <h3>Riesgos</h3>
       <ul class="list">
-        <li><span class="pill hi">alto</span><span class="t">Converger al triplete a 2,7–3,0 Å<small>Ansatz que conserve S², medir ⟨S²⟩, arranque desde el punto vecino</small></span></li>
+        <li><span class="pill hi">alto</span><span class="t">Reportar energías de EstimatorV2 sin shots<small>El jurado lo puede leer como leer el statevector; usar SamplerV2</small></span></li>
+        <li><span class="pill hi">alto</span><span class="t">Estado contaminado con el triplete desde 2,4 Å<small>Medir ⟨S²⟩ y Var(H); pool con adaptación de espín o fábrica QNP</small></span></li>
         <li><span class="pill hi">alto</span><span class="t">Margen chico a 1,8 Å (9,1 mHa)<small>Más shots ahí y sesgo bajo control</small></span></li>
         <li><span class="pill hi">alto</span><span class="t">El Colab no corre limpio<small>Versiones fijas en pip y prueba en un runtime nuevo</small></span></li>
         <li><span class="pill md">medio</span><span class="t">Optimizador lento al estirar<small>Por los valles de gradiente que describen Bertels et al.</small></span></li>
@@ -440,6 +452,7 @@ footer{border-top:1px solid var(--line);padding-block:24px 40px;font-size:13px;c
         <li><span class="pill lo">bajo</span><span class="t">Ruido de ruido.py<small>Mismo código, otro backend</small></span></li>
         <li><span class="pill lo">bajo</span><span class="t">Verificación de simetría<small>Filtrar N y S<sub>z</sub> en los grupos en base Z</small></span></li>
         <li><span class="pill md">medio</span><span class="t">≤6 qubits con tapering<small>Bravyi et al. 2017</small></span></li>
+        <li><span class="pill md">medio</span><span class="t">Ruido en FakeFez, 1–2 operadores a 3,0 Å<small>Los circuitos exactos llegan a 520–640 CZ y quedan 600–800 mHa lejos: mostrar crudo → post-selección → readout → ZNE</small></span></li>
         <li><span class="pill md">medio</span><span class="t">ZNE digital<small>Plegado de cz, factores 1, 3, 5</small></span></li>
         <li><span class="pill hi">alto</span><span class="t">SQD u otra geometría<small>Dejar para el final</small></span></li>
       </ul>
@@ -456,7 +469,7 @@ footer{border-top:1px solid var(--line);padding-block:24px 40px;font-size:13px;c
     <div><h3>Referencias</h3><p>PySCF en 16 distancias, como en la sección 02.</p></div>
     <div><h3>Un punto</h3><p>VQE a 1,8 Å (el margen más chico) hasta llegar a FCI.</p></div>
     <div><h3>La curva</h3><p>Barrer en ambos sentidos con arranque en caliente.</p></div>
-    <div><h3>Medir</h3><p>EstimatorV2, σ, ⟨S²⟩, criterio, R<sub>e</sub> y D<sub>e</sub>.</p></div>
+    <div><h3>Medir</h3><p>SamplerV2, σ validada, ⟨S²⟩, Var(H), criterio, R<sub>e</sub> y D<sub>e</sub>.</p></div>
     <div><h3>Notebook</h3><p>Tabla, decisiones, limitaciones. Prueba en Colab limpio.</p></div>
     <div><h3>Extras</h3><p>Ruido, ansätze, simetría, tapering, ZNE.</p></div>
   </div>
@@ -484,7 +497,11 @@ footer{border-top:1px solid var(--line);padding-block:24px 40px;font-size:13px;c
     <li>T. Giurgica-Tiron et al., «Digital zero noise extrapolation for quantum error mitigation», IEEE QCE (2020), arXiv:2005.10921.</li>
     <li>X. Bonet-Monroig et al., «Low-cost error mitigation by symmetry verification», PRA 98, 062339 (2018).</li>
     <li>J. Robledo-Moreno et al., «Chemistry beyond the scale of exact diagonalization on a quantum-centric supercomputer», Science Advances (2025), arXiv:2405.05068.</li>
+    <li>W. J. Huggins et al., «Efficient and noise resilient measurements for quantum chemistry on near-term quantum computers», npj Quantum Inf. (2021), arXiv:1907.13117.</li>
+    <li>M. Ramôa et al., «Reducing the resources required by ADAPT-VQE using coupled exchange operators», npj Quantum Inf. (2025), arXiv:2407.08696.</li>
+    <li>G.-L. R. Anselmetti et al., «Local, expressive, quantum-number-preserving VQE ansätze for fermionic systems», New J. Phys. (2021), arXiv:2104.05695.</li>
   </ol>
+  <p style="font-size:13.5px;color:var(--muted)">Detalle de las corridas de ansatz, medición y ruido en <code>docs/analysis/state-of-the-art.md</code> del repo.</p>
 </section>
 
 </main>
@@ -496,8 +513,9 @@ footer{border-top:1px solid var(--line);padding-block:24px 40px;font-size:13px;c
   // ---------- data (PySCF 2.15.1, RHF/STO-3G, linear H4) ----------
   // [d, RHF, CCSD, CCSD(T), FCI, gap S0->T1 (Ha), lambda (Ha)]
   const D=[[0.6,-1.929564,-1.960189,-1.960194,-1.960194,0.576921,10.253],[0.7,-2.069197,-2.106993,-2.106999,-2.106997,0.452526,9.115],[0.8,-2.121387,-2.167556,-2.167567,-2.167561,0.359648,8.294],[0.9,-2.12426,-2.180309,-2.180334,-2.180317,0.288706,7.657],[1.0,-2.098546,-2.16638,-2.16643,-2.166387,0.23263,7.145],[1.1,-2.056025,-2.137975,-2.138072,-2.137971,0.186941,6.726],[1.2,-2.003867,-2.102671,-2.10284,-2.102608,0.149092,6.391],[1.4,-1.88779,-2.029707,-2.030122,-2.02907,0.091725,5.865],[1.6,-1.772203,-1.970572,-1.971365,-1.96756,0.053626,5.472],[1.8,-1.666867,-1.933537,-1.934782,-1.924431,0.029825,5.211],[2.0,-1.575616,-1.916086,-1.917914,-1.897781,0.015905,4.997],[2.2,-1.499146,-1.90912,-1.91177,-1.882713,0.008214,4.816],[2.4,-1.436459,-1.905212,-1.908823,-1.874652,0.004138,4.704],[2.6,-1.385824,-1.901099,-1.90554,-1.870473,0.002037,4.591],[2.8,-1.345365,-1.896024,-1.900871,-1.86835,0.000979,4.478],[3.0,-1.313312,-1.890305,-1.894986,-1.867291,0.000458,4.367]];
-  // shot constants on the exact ground state: [d, K_qwc, K_terms, lambda, CCSD error mHa]
-  const K=[[0.6,1.963,4.275,10.253,0.005],[0.9,2.133,4.232,7.657,0.008],[1.2,2.175,4.394,6.391,-0.063],[1.8,1.942,4.541,5.211,-9.106],[2.4,1.781,4.218,4.704,-30.560],[3.0,1.633,3.894,4.367,-23.014]];
+  // shot constants on the exact ground state: [d, K_qwc, K_terms, lambda, CCSD error mHa, K_basis_rotation or null]
+  // K_basis_rotation = sqrt(shots for sigma = 1 mHa) * 1e-3, from the state-of-the-art doc (double factorization).
+  const K=[[0.6,1.963,4.275,10.253,0.005,null],[0.9,2.133,4.232,7.657,0.008,null],[1.2,2.175,4.394,6.391,-0.063,null],[1.8,1.942,4.541,5.211,-9.106,0.583],[2.4,1.781,4.218,4.704,-30.560,0.232],[3.0,1.633,3.894,4.367,-23.014,0.079]];
   const NS='http://www.w3.org/2000/svg';
   const nf=(x,dig)=>x.toFixed(dig).replace('.',',').replace('-','−');
 
@@ -598,7 +616,8 @@ footer{border-top:1px solid var(--line);padding-block:24px 40px;font-size:13px;c
     document.getElementById('o1').textContent=ok?fmt((k[1]/S)**2):'–';
     document.getElementById('o2').textContent=ok?fmt((k[2]/S)**2):'–';
     document.getElementById('o3').textContent=ok?fmt((k[3]/S)**2):'–';
-    document.getElementById('kinfo').textContent=`K = ${nf(k[1],2)} Ha con grupos QWC, ${nf(k[2],2)} Ha término por término, λ = ${nf(k[3],2)} Ha.`;
+    document.getElementById('o4').textContent=(ok&&k[5])?fmt((k[5]/S)**2):'sin dato';
+    document.getElementById('kinfo').textContent=`K = ${nf(k[1],2)} Ha con grupos QWC, ${nf(k[2],2)} Ha término por término, λ = ${nf(k[3],2)} Ha${k[5]?`, ${nf(k[5],3)} Ha con rotación de base`:''}.`;
     const v=document.getElementById('verdict'), cc=Math.abs(k[4]), tot=B+parseFloat(sig.value);
     if(!ok){v.textContent='';return}
     if(k[0]<1.8){v.className='verdict';v.textContent=`A esta distancia CCSD erra ${nf(cc,3)} mHa: no se compite acá, alcanza con una curva prolija.`}

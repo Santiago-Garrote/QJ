@@ -35,33 +35,36 @@ Tabla completa (16 distancias, con RHF y λ) en [`data/h4_reference.json`](data/
 
 1. **CCSD cae por debajo de FCI.** Desde ~1,1 Å CCSD no es variacional: da energías menores que la exacta. El error es 9,1 mHa a 1,8 Å, toca 30,6 mHa a 2,6 Å y queda en 23,0 mHa a 3,0 Å. CCSD(T) es peor. Coincide con lo que reportan Bertels et al. (2022) para H₄ estirado.
 2. **El punto más exigente del criterio central es 1,8 Å.** Es donde CCSD tiene su menor error dentro de la zona juzgada: hace falta |sesgo| + σ < 9,1 mHa. De 2,2 Å en adelante el margen supera los 20 mHa.
-3. **Triplete casi degenerado a 2,7–3,0 Å.** El primer excitado del sector N = 4, S<sub>z</sub> = 0 es un triplete (⟨S²⟩ = 2) a 1,4 mHa (2,7 Å) y 0,46 mHa (3,0 Å), por debajo de la precisión química. Un estado con el espín equivocado igual da precisión química en energía, y la varianza ⟨H²⟩ − ⟨H⟩² deja de distinguirlos. **Hay que medir y reportar ⟨S²⟩.**
-4. **Hartree-Fock deja de ser buena referencia.** Su peso en el estado exacto cae de 0,985 (0,6 Å) a 0,58 (1,8 Å) y 0,27 (3,0 Å). Conviene un ansatz multiconfiguracional y arranque en caliente desde el punto vecino.
-5. **D<sub>e</sub> es donde CCSD pierde más.** Con FCI, R<sub>e</sub> ≈ 0,90 Å y D<sub>e</sub> ≈ 313 mHa; CCSD da ≈ 290 mHa (23 mHa menos). Son estimaciones gruesas sobre la grilla de 0,1 Å.
+3. **El triplete contamina desde 2,4 Å.** El primer excitado del sector N = 4, S<sub>z</sub> = 0 es un triplete (⟨S²⟩ = 2) a 4,1 mHa (2,4 Å), 1,4 mHa (2,7 Å) y 0,46 mHa (3,0 Å). En corridas de QEB-ADAPT a 2,4 Å, 15 operadores dan 1,72 mHa de error con ⟨S²⟩ = 0,28 y √Var(H) = 22 mHa ([state-of-the-art.md](state-of-the-art.md), sección 7). **Hay que medir y reportar ⟨S²⟩ y Var(H) en cada punto juzgado.**
+4. **`EstimatorV2` de qiskit-aer no muestrea.** Calcula el valor exacto y, solo si `precision > 0`, le suma ruido gaussiano de ese ancho (0 por defecto). Las energías juzgadas tienen que salir de `SamplerV2` con shots explícitos; Estimator queda como control cruzado.
+5. **Hartree-Fock deja de ser buena referencia.** Su peso en el estado exacto cae de 0,985 (0,6 Å) a 0,58 (1,8 Å) y 0,27 (3,0 Å). Conviene un ansatz multiconfiguracional y arranque en caliente desde el punto vecino.
+6. **D<sub>e</sub> es donde CCSD pierde más.** Con FCI, R<sub>e</sub> ≈ 0,90 Å y D<sub>e</sub> ≈ 313 mHa; CCSD da ≈ 290 mHa (23 mHa menos). Son estimaciones gruesas sobre la grilla de 0,1 Å; un ajuste cuártico sobre puntos densos da R<sub>e</sub> = 0,888 Å y D<sub>e</sub> = 313,2 mHa ([state-of-the-art.md](state-of-the-art.md), sección 1).
 
 ## Costo de medición
 
 El Hamiltoniano tiene 185 términos de Pauli; un agrupamiento greedy en conjuntos que conmutan qubit a qubit (QWC) los reduce a ~70 grupos. Con reparto óptimo de shots (N<sub>g</sub> ∝ √Var<sub>g</sub>), σ = K/√N, con K calculado sobre el estado exacto:
 
-| d (Å) | K grupos QWC (Ha) | K término a término (Ha) | λ = Σ\|c<sub>k</sub>\| (Ha) | shots para σ = 1 mHa (QWC) |
-|---:|---:|---:|---:|---:|
-| 0,6 | 1,96 | 4,28 | 10,25 | 3,9 M |
-| 1,2 | 2,18 | 4,39 | 6,39 | 4,7 M |
-| 1,8 | 1,94 | 4,54 | 5,21 | 3,8 M |
-| 2,4 | 1,78 | 4,22 | 4,70 | 3,2 M |
-| 3,0 | 1,63 | 3,89 | 4,37 | 2,7 M |
+| d (Å) | K grupos QWC (Ha) | K término a término (Ha) | λ = Σ\|c<sub>k</sub>\| (Ha) | shots σ = 1 mHa (QWC) | shots σ = 1 mHa (rotación de base) |
+|---:|---:|---:|---:|---:|---:|
+| 0,6 | 1,96 | 4,28 | 10,25 | 3,9 M | |
+| 1,2 | 2,18 | 4,39 | 6,39 | 4,7 M | |
+| 1,8 | 1,94 | 4,54 | 5,21 | 3,8 M | 3,4 × 10⁵ |
+| 2,4 | 1,78 | 4,22 | 4,70 | 3,2 M | 5,4 × 10⁴ |
+| 3,0 | 1,63 | 3,89 | 4,37 | 2,7 M | 6,3 × 10³ |
 
-Agrupar y repartir bien ahorra ~7× frente a la cota ingenua con λ a 1,8 Å. Para ganarle a CCSD a 1,8 Å con σ ≈ 3 mHa alcanzan ~0,4 M shots; la precisión química exige del orden de millones por punto.
+Agrupar y repartir bien ahorra ~7× frente a la cota ingenua con λ a 1,8 Å. La rotación de base (factorización doble, Huggins et al. 2021; valores de [state-of-the-art.md](state-of-the-art.md), sección 4) ahorra otro ~10× a 1,8 Å y mucho más al estirar, porque un término cercano a N̂² tiene varianza nula con N fijo. Para ganarle a CCSD a 1,8 Å con σ ≈ 3 mHa alcanzan ~0,4 M shots con grupos QWC.
 
 ## Recomendaciones
 
-- **Ansatz:** QEB-ADAPT-VQE (conserva N, pocas cz por operador), con k-UpCCGSD como comparador y el hardware-efficient de Kandala como línea de base.
-- **Parámetros:** optimizar sin ruido (está permitido) y arrancar cada d desde los θ del vecino, recorriendo la curva en ambos sentidos.
-- **Medición:** EstimatorV2 con grupos QWC y más shots a 1,8–2,0 Å.
-- **Confiabilidad:** ⟨N⟩ = 4, ⟨S<sub>z</sub>⟩ = 0, ⟨S²⟩ ≈ 0, energía estable al agrandar el ansatz, curva suave.
+- **Ansatz:** QEB-ADAPT-VQE con reuso de operadores: llega a FCI a 1,8, 2,4 y 3,0 Å con 17–20 operadores (~160–205 CNOT con conectividad total). No usar UCCSD de un paso (se traba en 3,3 mHa a 1,8 Å). Alternativas: CEO-ADAPT (menos CNOT) y la fábrica QNP (conserva S²). Hardware-efficient solo como línea de base.
+- **Parámetros:** BFGS con gradientes analíticos sobre el statevector (está permitido); arrancar cada d desde el vecino y correr ADAPT fresco en 3,0 Å para barrer hacia adentro y comparar.
+- **Medición:** `SamplerV2` con shots explícitos por base, E y σ desde los bitstrings. Primero grupos QWC con N<sub>g</sub> ∝ √Var<sub>g</sub>; si hay tiempo, rotación de base. Más shots a 1,8–2,2 Å.
+- **Barra de error:** valor por shot de cada fragmento (incluye covarianzas) y validación con 20–50 repeticiones o bootstrap.
+- **Confiabilidad:** Var(H) → 0 y cota de Temple, ⟨N⟩ = 4, ⟨S<sub>z</sub>⟩ = 0, ⟨S²⟩ ≈ 0 en cada punto juzgado, energía estable al agrandar el ansatz, barridos en ambos sentidos.
 - **R<sub>e</sub>:** puntos densos entre 0,8 y 1,0 Å y ajuste local con bootstrap.
 - **cz:** transpilar con base cz, sx, x, rz y acoplamiento lineal (como `ruido.py`).
 - **Extras baratos:** comparar ansätze, ruido de `ruido.py`, verificación de simetría (filtrar N y S<sub>z</sub> en grupos en base Z).
+- **Ruido:** en FakeFez los circuitos exactos llegan a 520–640 CZ y quedan 600–800 mHa lejos de FCI. Como extra, mostrar un punto estirado con 1–2 operadores: crudo → post-selección → readout → ZNE, siempre con `SamplerV2`.
 
 ## Literatura
 
@@ -83,5 +86,10 @@ Agrupar y repartir bien ahorra ~7× frente a la cota ingenua con λ a 1,8 Å. Pa
 | Giurgica-Tiron et al., [arXiv:2005.10921](https://arxiv.org/abs/2005.10921) (2020) | ZNE digital por plegado de compuertas | Receta para el extra de mitigación |
 | Bonet-Monroig et al., PRA 98, 062339 (2018) | Mitigación por verificación de simetrías | Filtrar N y S<sub>z</sub>, casi gratis |
 | Robledo-Moreno et al., [arXiv:2405.05068](https://arxiv.org/abs/2405.05068) (2025) | SQD | Por qué SQD está excluido (36 configuraciones) |
+| Huggins et al., [arXiv:1907.13117](https://arxiv.org/abs/1907.13117) (2021) | Medición por rotación de base (factorización doble) | ~10× menos shots a 1,8 Å y post-selección en cada shot |
+| Ramôa et al., [arXiv:2407.08696](https://arxiv.org/abs/2407.08696) (2025) | CEO-ADAPT: tres dobles al costo de una | Frontera publicada en CNOT |
+| Anselmetti et al., [arXiv:2104.05695](https://arxiv.org/abs/2104.05695) (2021) | Ansatz local que conserva N<sub>α</sub>, N<sub>β</sub> y S² | Evita la contaminación de triplete |
+
+Más papers (Overlap-ADAPT, gradient troughs, sombras clásicas, SKQD) y todos los detalles de las corridas en [`state-of-the-art.md`](state-of-the-art.md).
 
 Los papers se revisaron a partir de resúmenes y fuentes secundarias. Conviene verificar en los PDF cualquier número puntual (por ejemplo, conteos de CNOT) antes de citarlo en el notebook.
